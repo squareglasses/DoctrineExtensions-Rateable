@@ -14,7 +14,8 @@ Each rate is a tuple consisting of a resource id, a user id and a score.
 First, your entity must implement the `DoctrineExtensions\Rateable\Rateable` interface.
 Five methods in your entity must be written:
 
- * `getResourceId()`
+ * `getRateableId()`
+ * `getRateableType()`
  * `getRatingVotes()`
  * `setRatingVotes($number)`
  * `getRatingTotal()`

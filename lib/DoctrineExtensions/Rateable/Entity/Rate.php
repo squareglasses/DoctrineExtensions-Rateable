@@ -18,6 +18,8 @@ class Rate
     protected $id;
 
     protected $resourceId;
+    protected $resourceType;
+    
     protected $reviewerId;
 
     protected $score;
@@ -39,12 +41,18 @@ class Rate
 
     public function setResource(Rateable $resource)
     {
-        $this->resourceId = $resource->getResourceId();
+        $this->resourceId   = $resource->getRateableId();
+        $this->resourceType = $resource->getRateableType();
     }
 
     public function getResourceId()
     {
         return $this->resourceId;
+    }
+    
+    public function getResourceType()
+    {
+        return $this->resourceType;
     }
 
     public function setReviewer(Reviewer $reviewer)

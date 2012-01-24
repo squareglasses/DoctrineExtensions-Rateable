@@ -180,7 +180,8 @@ class RatingManager
         return $this->em
             ->getRepository($this->class)
             ->findOneBy(array(
-                'resourceId'    => $resource->getResourceId(),
+                'resourceId'    => $resource->getRateableId(),
+                'resourceType'  => $resource->getRateableType(),
                 'reviewerId'    => $reviewer->getReviewerId(),
             ))
         ;
@@ -198,7 +199,8 @@ class RatingManager
         return $this->em
             ->getRepository($this->class)
             ->findBy(array(
-                'resourceId'    => $resource->getResourceId(),
+                'resourceId'    => $resource->getRateableId(),
+                'resourceType'  => $resource->getRateableType(),
             ))
         ;
     }

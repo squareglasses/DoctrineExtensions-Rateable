@@ -37,7 +37,8 @@ class RateTest extends \PHPUnit_Framework_TestCase
         $rate = new Rate();
         $rate->setResource($article);
 
-        $this->assertEquals($article->getResourceId(), $rate->getResourceId());
+        $this->assertEquals($article->getRateableId(), $rate->getResourceId());
+        $this->assertEquals($article->getRateableType(), $rate->getResourceType());
     }
 
     /**
