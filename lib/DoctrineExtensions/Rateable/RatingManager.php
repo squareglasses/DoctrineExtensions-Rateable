@@ -23,7 +23,7 @@ class RatingManager
     protected $minRateScore = 1;
     protected $maxRateScore = 5;
 
-    public function __construct(EntityManager $em, $class = null)
+    public function __construct(EntityManager $em, $class = null, $minRateScore = 0, $maxRateScore = 5)
     {
         $this->em = $em;
         $this->class = $class ?: 'DoctrineExtensions\Rateable\Entity\Rate';
