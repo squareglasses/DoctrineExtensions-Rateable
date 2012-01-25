@@ -16,19 +16,55 @@ use Doctrine\ORM\EntityManager;
  * RatingManager.
  *
  * @author Fabien Pennequin <fabien@pennequin.me>
+ * @author Bat <contact@graindeweb.fr>
  */
 class RatingManager
 {
     protected $em;
     protected $minRateScore = 1;
     protected $maxRateScore = 5;
+    
+    /**
+     * Set if a user can add rating more than once
+     * @var boolean 
+     */
+    protected $multiRating  = false;
+    
+    /**
+     * Time before a user can re-rate. Only in case of multiRating.
+     * @var integer time in seconds 
+     */
+    protected $timeBeforeNewRating = 86400;
 
+    
+    
     public function __construct(EntityManager $em, $class = null, $minRateScore = 0, $maxRateScore = 5)
     {
         $this->em = $em;
         $this->class = $class ?: 'DoctrineExtensions\Rateable\Entity\Rate';
         $this->minRateScore = $minRateScore;
         $this->maxRateScore = $maxRateScore;
+    }
+    
+    /**
+     * Set the permission to vote more than once
+     * @param boolean $multiRating
+     * @param integer $timeBeforeNewRating 
+     */
+    public function setMultiRating($multiRating, $timeBeforeNewRating = null)
+    {
+        $this->multiRating = $multiRating;
+        if (!is_null($timeBeforeNewRating)) $this->timeBeforeNewRating = $timeBeforeNewRating;
+    }
+    
+    public function getMultiRating()
+    {
+        return $this->multiRating;
+    }
+    
+    public function getTimeBeforeNewRating()
+    {
+        return $this->timeBeforeNewRating;
     }
 
     /**
@@ -50,7 +86,7 @@ class RatingManager
             throw new Exception\InvalidRateScoreException($this->minRateScore, $this->maxRateScore);
         }
 
-        if ($this->findRate($resource, $reviewer)) {
+        if ((!$this->multiRating || $this->timeBeforeNewRating > 0) && $this->findRate($resource, $reviewer)) {
             throw new Exception\ResourceAlreadyRatedException('The reviewer has already rated this resource');
         }
 

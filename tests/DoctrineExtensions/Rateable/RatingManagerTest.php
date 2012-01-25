@@ -87,6 +87,20 @@ class RatingManagerTest extends \PHPUnit_Framework_TestCase
         $manager = new RatingManager($this->em, $class);
         $this->assertEquals($class, $manager->getRateClass());
     }
+    
+    public function testSetMultiRating()
+    {
+        $this->manager->setMultiRating(true);
+        $this->assertEquals(false, $this->manager->getMultiRating());
+        $this->assertEquals(86400, $this->manager->getTimeBeforeNewRating());
+        
+        $this->manager->setMultiRating(false);
+        $this->assertEquals(false, $this->manager->getMultiRating());
+        $this->assertEquals(86400, $this->manager->getMultiRating());
+        
+        $this->manager->setMultiRating(true, 3600);
+        $this->assertEquals(3600, $this->manager->getTimeBeforeNewRating());
+    }
 
     public function testAddRate()
     {
@@ -144,6 +158,48 @@ class RatingManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->manager->addRate($this->article, $user, 4);
         $this->manager->addRate($this->article, $user, 4);
+    }
+    
+    public function testAddRateAgainWithMultiRatingNoWait()
+    {
+        $user = new User();
+        $user->id = 951;
+
+        // First Test unlimited re-rate (no wait)
+        $this->manager->setMultiRating(true, 0);
+        
+        $this->manager->addRate($this->article, $user, 3);
+        $this->assertEquals(3, $this->article->getRatingVotes());
+        $this->manager->addRate($this->article, $user, 3);
+        $this->assertEquals(4, $this->article->getRatingVotes());
+    }
+    
+    /**
+     * @expectedException DoctrineExtensions\Rateable\Exception\ResourceAlreadyRatedInPeriodException
+     */
+    public function testAddRateAgainWithMultiRatingWait()
+    {
+        $user = new User();
+        $user->id = 951;
+        
+        // Then Test Mandatory waiting
+        $this->manager->setMultiRating(true, 3600);
+        $this->manager->addRate($this->article, $user, 3);
+    }
+    
+    public function testAddRateAgainWithMultiRatingWaitOk()
+    {
+        $user = new User();
+        $user->id = 851;
+        
+        // Then Test Mandatory waiting
+        $this->manager->setMultiRating(true, 3600);
+        $rate = $this->manager->addRate($this->article, $user, 3);
+        $rate->setCreatedAt(new \DateTime('now-1 day'));
+        $this->em->persist($rate);
+        $this->em->flush();
+        
+        $this->manager->addRate($this->article, $user, 3);
     }
 
 
