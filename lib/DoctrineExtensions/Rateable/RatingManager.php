@@ -230,8 +230,7 @@ class RatingManager
                 'resourceId'    => $resource->getRateableId(),
                 'resourceType'  => $resource->getRateableType(),
                 'reviewerId'    => $reviewer->getReviewerId(),
-            ))
-            ->orderBy('createdAt', 'DESC')
+            ), array('createdAt' => 'DESC'))
         ;
     }
     
@@ -250,8 +249,8 @@ class RatingManager
                   'resourceId'    => $resource->getRateableId(),
                   'resourceType'  => $resource->getRateableType(),
                   'reviewerId'    => $reviewer->getReviewerId(),
-                ))
-                ->orderBy('createdAt', 'DESC');
+                ), array('createdAt' => 'DESC'))
+            ;
     }
 
     /**
