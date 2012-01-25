@@ -27,6 +27,8 @@ class RatingManager
     {
         $this->em = $em;
         $this->class = $class ?: 'DoctrineExtensions\Rateable\Entity\Rate';
+        $this->minRateScore = $minRateScore;
+        $this->maxRateScore = $maxRateScore;
     }
 
     /**
