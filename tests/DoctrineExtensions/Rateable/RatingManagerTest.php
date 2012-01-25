@@ -91,12 +91,12 @@ class RatingManagerTest extends \PHPUnit_Framework_TestCase
     public function testSetMultiRating()
     {
         $this->manager->setMultiRating(true);
-        $this->assertEquals(false, $this->manager->getMultiRating());
+        $this->assertEquals(true, $this->manager->getMultiRating());
         $this->assertEquals(86400, $this->manager->getTimeBeforeNewRating());
         
         $this->manager->setMultiRating(false);
         $this->assertEquals(false, $this->manager->getMultiRating());
-        $this->assertEquals(86400, $this->manager->getMultiRating());
+        $this->assertEquals(86400, $this->manager->getTimeBeforeNewRating());
         
         $this->manager->setMultiRating(true, 3600);
         $this->assertEquals(3600, $this->manager->getTimeBeforeNewRating());
@@ -182,8 +182,9 @@ class RatingManagerTest extends \PHPUnit_Framework_TestCase
         $user = new User();
         $user->id = 951;
         
-        // Then Test Mandatory waiting
+        // Then Test Mandatory waiting fail
         $this->manager->setMultiRating(true, 3600);
+        $this->manager->addRate($this->article, $user, 3);
         $this->manager->addRate($this->article, $user, 3);
     }
     

@@ -38,7 +38,7 @@ class RatingManager
 
     
     
-    public function __construct(EntityManager $em, $class = null, $minRateScore = 0, $maxRateScore = 5)
+    public function __construct(EntityManager $em, $class = null, $minRateScore = 1, $maxRateScore = 5)
     {
         $this->em = $em;
         $this->class = $class ?: 'DoctrineExtensions\Rateable\Entity\Rate';
@@ -86,8 +86,13 @@ class RatingManager
             throw new Exception\InvalidRateScoreException($this->minRateScore, $this->maxRateScore);
         }
 
-        if ((!$this->multiRating || $this->timeBeforeNewRating > 0) && $this->findRate($resource, $reviewer)) {
-            throw new Exception\ResourceAlreadyRatedException('The reviewer has already rated this resource');
+        if ((!$this->multiRating || $this->timeBeforeNewRating > 0) && $lastRate = $this->findRate($resource, $reviewer)) {
+            if (!$this->multiRating) {
+              throw new Exception\ResourceAlreadyRatedException('The reviewer has already rated this resource');
+            }
+            elseif( $lastRate->getCreatedAt()->getTimestamp() >  time()-$this->getTimeBeforeNewRating()) {
+              throw new Exception\ResourceAlreadyRatedInPeriodException('The reviewer must wait before re-rate this resource');
+            }
         }
 
         $rate = $this->createRate();
@@ -108,6 +113,8 @@ class RatingManager
 
     /**
      * Changes score for an existant rate.
+     * Warning : This method only works fine with single Rating
+     * @todo : add method to remove All Rate, or on Rate by id
      *
      * @param Rateable  $resource   The resource object
      * @param Reviewer  $reviewer   The reviewer object
@@ -141,6 +148,8 @@ class RatingManager
 
     /**
      * Removes an existant rate.
+     * Warning : This method only works fine with single Rating
+     * @todo : add method to remove All Rate, or on Rate by id
      *
      * @param Rateable  $resource   The resource object
      * @param Reviewer  $reviewer   The reviewer object
@@ -206,7 +215,7 @@ class RatingManager
     }
 
     /**
-     * Finds a rate object for a couple resource/reviewer.
+     * Finds the last rate object for a couple resource/reviewer.
      *
      * @param Rateable  $resource   The resource object
      * @param Reviewer  $reviewer   The reviewer object
@@ -222,7 +231,27 @@ class RatingManager
                 'resourceType'  => $resource->getRateableType(),
                 'reviewerId'    => $reviewer->getReviewerId(),
             ))
+            ->orderBy('createdAt', 'DESC')
         ;
+    }
+    
+    /**
+     * Finds rates collection for a couple resource/reviewer
+     * 
+     * @param Rateable $resource
+     * @param Reviewer $reviewer
+     * @return DoctrineCollection 
+     */
+    public function findRates(Rateable $resource, Reviewer $reviewer)
+    {
+        return $this->em
+                ->getRepository($this->class)
+                ->findBy(array(
+                  'resourceId'    => $resource->getRateableId(),
+                  'resourceType'  => $resource->getRateableType(),
+                  'reviewerId'    => $reviewer->getReviewerId(),
+                ))
+                ->orderBy('createdAt', 'DESC');
     }
 
     /**
