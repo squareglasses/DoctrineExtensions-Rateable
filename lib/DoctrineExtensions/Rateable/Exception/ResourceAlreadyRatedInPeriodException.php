@@ -12,5 +12,5 @@
 
 namespace DoctrineExtensions\Rateable\Exception;
 
-class ResourceAlreadyRatedInPeriod extends \Exception
+class ResourceAlreadyRatedInPeriodException extends \Exception
 {}
