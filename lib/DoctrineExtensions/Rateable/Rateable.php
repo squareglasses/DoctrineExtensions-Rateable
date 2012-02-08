@@ -25,4 +25,6 @@ interface Rateable
 
     function getRatingTotal();
     function setRatingTotal($number);
+    
+    function getAverageRates();
 }
