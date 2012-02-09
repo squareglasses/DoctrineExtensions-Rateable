@@ -213,6 +213,30 @@ class RatingManager
 
         return round($resource->getRatingTotal() / $resource->getRatingVotes(), $precision);
     }
+    
+    /**
+     * @return integer min score allowed
+     */
+    public function getMinRateScore() 
+    {
+        return $this->minRateScore;
+    }
+    
+    /**
+     * @return integer max score allowed
+     */
+    public function getMaxScore()
+    {
+        return $this->maxRateScore;
+    }
+    
+    /**
+     * @return array range of allowed scores
+     */
+    public function getRange()
+    {
+        return range($this->minRateScore, $this->maxRateScore);
+    }
 
     /**
      * Finds the last rate object for a couple resource/reviewer.
